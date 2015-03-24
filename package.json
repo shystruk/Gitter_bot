@@ -1,0 +1,20 @@
+{
+  "name": "gitter-bot",
+  "version": "0.0.1",
+  "homepage": "https://github.com/shystruk/Gitter-bot",
+  "author": "Vasyl Stokolosa <wystruk@ukr.net>",
+  "license": "MIT",
+  "keywords": [
+    "NodeJS",
+    "Giiter",
+    "UA WEB CHALLENGE"
+  ],
+  "dependencies": {
+    "request": "~2.27.0",
+    "express": "~3.4.4",
+    "jade": "~0.35.0",
+    "passport": "~0.2.0",
+    "passport-oauth2": "~1.1.1",
+    "node-gitter": "~1.2.8"
+  }
+}
