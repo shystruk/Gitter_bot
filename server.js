@@ -11,9 +11,10 @@ var app = express();
 var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth2');
 var request = require('request');
+var Gitter = require('node-gitter');
 
 var gitterHost    = process.env.HOST || 'https://gitter.im';
-var port          = process.env.PORT || 7000;
+var port          = process.env.PORT || 3000;
 
 // Client OAuth configuration
 var clientId      = process.env.GITTER_KEY;
@@ -23,7 +24,7 @@ var clientSecret  = process.env.GITTER_SECRET;
 var room = process.env.ROOM;
 
 // Gitter API client helper
-var gitter = {
+var gitterAuthen = {
     fetch: function(path, token, cb) {
         var options = {
             url: gitterHost + path,
@@ -81,7 +82,7 @@ passport.use(new OAuth2Strategy({
     },
     function(req, accessToken, refreshToken, profile, done) {
         req.session.token = accessToken;
-        gitter.fetchCurrentUser(accessToken, function(err, user) {
+        gitterAuthen.fetchCurrentUser(accessToken, function(err, user) {
             return (err ? done(err) : done(null, user));
         });
     }
@@ -123,7 +124,7 @@ app.get('/home', function(req, res) {
 
 
     // Fetch user rooms using the Gitter API
-    gitter.fetchRooms(req.user, req.session.token, function(err, rooms) {
+    gitterAuthen.fetchRooms(req.user, req.session.token, function(err, rooms) {
         if (err) return res.send(500);
 
         res.render('home', {
@@ -132,6 +133,35 @@ app.get('/home', function(req, res) {
             clientId: clientId,
             rooms: rooms,
             room: room
+        });
+    });
+
+    //scanning room
+    var gitter = new Gitter(req.session.token),
+        events,
+        messageCurrent,
+        posCalc,
+        calcData,
+        result;
+
+    gitter.currentUser()
+        .then(function(user) {
+            console.log('You are logged in as:', user.username);
+        });
+
+    gitter.rooms.join(room).then(function(room) {
+        events = room.listen();
+
+        events.on('message', function(message) {
+            messageCurrent = message.text;
+
+            if (messageCurrent.indexOf('calc ') > -1) {
+                posCalc = messageCurrent.indexOf('calc ');
+                calcData = messageCurrent.slice(posCalc + 4, messageCurrent.length);
+                result = eval(calcData);
+
+                room.send(calcData + ' = ' + result);
+            }
         });
     });
 });
