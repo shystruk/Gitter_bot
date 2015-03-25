@@ -11,16 +11,15 @@ var app = express();
 var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth2');
 var request = require('request');
-var Gitter = require('node-gitter');
 
-var gitterHost    = process.env.HOST || 'https://gitter.im';
-var port          = process.env.PORT || 3000;
+var gitterHost = process.env.HOST || 'https://gitter.im';
+var port = process.env.PORT || 3000;
 
 // Client OAuth configuration
-var clientId      = process.env.GITTER_KEY;
-var clientSecret  = process.env.GITTER_SECRET;
+var clientId = process.env.GITTER_KEY;
+var clientSecret = process.env.GITTER_SECRET;
 
-// room which would be scanned by BOT
+// ROOM which would be scanned by BOT
 var room = process.env.ROOM;
 
 // Gitter API client helper
@@ -96,76 +95,15 @@ passport.deserializeUser(function (user, done) {
     done(null, JSON.parse(user));
 });
 
-//routes
-app.get('/login',
-    passport.authenticate('oauth2')
-);
-
-app.get('/login/callback',
-    passport.authenticate('oauth2', {
-        successRedirect: '/home',
-        failureRedirect: '/'
-    })
-);
-
-app.get('/logout', function(req,res) {
-    req.session.destroy();
-    res.redirect('/');
-});
-
-
-app.get('/', function(req, res) {
-    res.render('landing');
-});
-
-
-app.get('/home', function(req, res) {
-    if (!req.user) return res.redirect('/');
-
-
-    // Fetch user rooms using the Gitter API
-    gitterAuthen.fetchRooms(req.user, req.session.token, function(err, rooms) {
-        if (err) return res.send(500);
-
-        res.render('home', {
-            user: req.user,
-            token: req.session.token,
-            clientId: clientId,
-            rooms: rooms,
-            room: room
-        });
-    });
-
-    //scanning room
-    var gitter = new Gitter(req.session.token),
-        events,
-        messageCurrent,
-        posCalc,
-        calcData,
-        result;
-
-    gitter.currentUser()
-        .then(function(user) {
-            console.log('You are logged in as:', user.username);
-        });
-
-    gitter.rooms.join(room).then(function(room) {
-        events = room.listen();
-
-        events.on('message', function(message) {
-            messageCurrent = message.text;
-
-            if (messageCurrent.indexOf('calc ') > -1) {
-                posCalc = messageCurrent.indexOf('calc ');
-                calcData = messageCurrent.slice(posCalc + 4, messageCurrent.length);
-                result = eval(calcData);
-
-                room.send(calcData + ' = ' + result);
-            }
-        });
-    });
-});
+require('./server/routes')(app);
 
 //server
 app.listen(port);
 console.log('BOT running at http://localhost:' + port + ' and would be scanned room ' + room);
+
+//export data
+exports.gitterHost = gitterHost;
+exports.clientId = clientId;
+exports.clientSecret = clientSecret;
+exports.room = room;
+exports.gitterAuthen = gitterAuthen;
