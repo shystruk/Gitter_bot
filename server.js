@@ -95,7 +95,7 @@ passport.deserializeUser(function (user, done) {
     done(null, JSON.parse(user));
 });
 
-require('./server/routes')(app);
+require('./server/routes')(app, passport);
 
 //server
 app.listen(port);

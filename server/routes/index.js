@@ -3,11 +3,10 @@
  */
 'use strict';
 
-var passport = require('passport');
 var Gitter = require('node-gitter');
 var server = require('../../server.js');
 
-module.exports = function (app) {
+module.exports = function (app, passport) {
 
     app.get('/login',
         passport.authenticate('oauth2')
@@ -60,14 +59,19 @@ module.exports = function (app) {
         gitter.rooms.join(server.room).then(function(room) {
             events = room.listen();
 
+            console.log('BOT is scanning the room: ' + room.name);
+
             events.on('message', function(message) {
                 messageCurrent = message.text;
                 if (messageCurrent.indexOf('calc ') > -1) {
                     posCalc = messageCurrent.indexOf('calc ');
                     calcData = messageCurrent.slice(posCalc + 4, messageCurrent.length);
-                    result = eval(calcData);
-
-                    room.send(calcData + ' = ' + result);
+                    try {
+                        result = eval(calcData);
+                        room.send(calcData + ' = ' + result);
+                    } catch(err) {
+                        room.send(calcData + ' = ' + 'Sorry, BOT can\'t count your expression! Incorrect characters. Try again! ;)');
+                    }
                 }
             });
         });
