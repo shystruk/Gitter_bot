@@ -20,6 +20,6 @@ After **Sign In** you will see ROOM which would be scanned by BOT and ROOMS whic
 You can select any one which you want.<br/>
 Click on the **ROOM** which would be scanned by BOT and BOT will be working.
 ```
-Ask him: How many: calc 10 * 2
+Ask him - How many: calc 10 * 2
 ```
 
