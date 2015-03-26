@@ -9,7 +9,6 @@ var express = require('express');
 var app = express();
 
 var passport = require('passport');
-var OAuth2Strategy = require('passport-oauth2');
 var request = require('request');
 
 var gitterHost = process.env.HOST || 'https://gitter.im';
@@ -56,6 +55,13 @@ var gitterAuthen = {
     }
 };
 
+//exports data
+exports.gitterHost = gitterHost;
+exports.clientId = clientId;
+exports.clientSecret = clientSecret;
+exports.room = room;
+exports.gitterAuthen = gitterAuthen;
+
 // Middlewares
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');
@@ -70,40 +76,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
 
-// Passport Configuration
-passport.use(new OAuth2Strategy({
-        authorizationURL:   gitterHost + '/login/oauth/authorize',
-        tokenURL:           gitterHost + '/login/oauth/token',
-        clientID:           clientId,
-        clientSecret:       clientSecret,
-        callbackURL:        '/login/callback',
-        passReqToCallback:  true
-    },
-    function(req, accessToken, refreshToken, profile, done) {
-        req.session.token = accessToken;
-        gitterAuthen.fetchCurrentUser(accessToken, function(err, user) {
-            return (err ? done(err) : done(null, user));
-        });
-    }
-));
-
-passport.serializeUser(function(user, done) {
-    done(null, JSON.stringify(user));
-});
-
-passport.deserializeUser(function (user, done) {
-    done(null, JSON.parse(user));
-});
+require('./server/passport')();
 
 require('./server/routes')(app, passport);
 
 //server
 app.listen(port);
 console.log('BOT running at http://localhost:' + port + ' and would be scanned room ' + room);
-
-//export data
-exports.gitterHost = gitterHost;
-exports.clientId = clientId;
-exports.clientSecret = clientSecret;
-exports.room = room;
-exports.gitterAuthen = gitterAuthen;

@@ -25,19 +25,26 @@ module.exports = function (app, passport) {
     });
 
     app.get('/', function(req, res) {
-        res.render('landing');
+        if (req.user) {
+            res.redirect('/home');
+        } else {
+            res.render('landing');
+        }
     });
 
     app.get('/home', function(req, res) {
-        if (!req.user) return res.redirect('/');
+        var token = req.session.token,
+            user = req.user;
+
+        if (!user) return res.redirect('/');
 
         // Fetch user rooms using the Gitter API
-        server.gitterAuthen.fetchRooms(req.user, req.session.token, function(err, rooms) {
+        server.gitterAuthen.fetchRooms(user, token, function(err, rooms) {
             if (err) return res.send(500);
 
             res.render('home', {
-                user: req.user,
-                token: req.session.token,
+                user: user,
+                token: token,
                 clientId: server.clientId,
                 rooms: rooms,
                 room: server.room
@@ -45,9 +52,9 @@ module.exports = function (app, passport) {
         });
 
         //scanning room
-        var gitter = new Gitter(req.session.token),
-            events,
+        var gitter = new Gitter(token),
             messageCurrent,
+            events,
             posCalc,
             calcData,
             result;
