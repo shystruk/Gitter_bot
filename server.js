@@ -15,11 +15,11 @@ var gitterHost = process.env.HOST || 'https://gitter.im';
 var port = process.env.PORT || 3000;
 
 // Client OAuth configuration
-var clientId = process.env.GITTER_KEY;
-var clientSecret = process.env.GITTER_SECRET;
+var clientId = process.env.GITTER_KEY || '6c62f1133d704607d063b93182b233f32e8d6ece';
+var clientSecret = process.env.GITTER_SECRET || '4641ac91c2d12c7cd139aa228f55c5ef9be6665b';
 
 // ROOM which would be scanned by BOT
-var room = process.env.ROOM;
+var room = process.env.ROOM || 'shystruk/Gitter_bot';
 
 // Gitter API client helper
 var gitterAuthen = {
