@@ -8,7 +8,7 @@ UA WEB CHALLENGE
 
 ```
 
-GITTER_KEY=<app-key> GTTER_SECRET=<app-secret> ROOM=<username/room> node server.js
+GITTER_KEY=<app-key> GITTER_SECRET=<app-secret> ROOM=<username/room> node server.js
 
 <app-key> & <app-secret> - app's OAUTH KEY & OAUTH SECRET which you have created at https://developer.gitter.im
 
