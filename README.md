@@ -1,10 +1,24 @@
 # Gitter_bot
 UA WEB CHALLENGE
 
-##Getting started
+##Default
+1. **npm install**
+2. **node server.js**
+3. **http://localhost:3000**
+4. Sign In and you will see default room which would be scanned by **BOT**
+5. Click on the **ROOM** and BOT will be working
+```
+Ask him - How many: calc 10 * 2
+```
+
+**Change ROOM**:
+```
+ROOM=<username/room> node server.js
+```
+
+####If problems with Authentication
 1. Create a new app at https://developer.gitter.im: ```Redirect URL``` -  should be **http://localhost:3000/login/callback**<br/>
-2. Run npm install<br/>
-3. Launch Gitter BOT with:<br/>
+2. Launch Gitter BOT with:<br/>
 
 ```
 
