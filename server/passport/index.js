@@ -6,7 +6,6 @@
 
 var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth2');
-var request = require('request');
 var server = require('../../server.js');
 
 // Gitter API client helper

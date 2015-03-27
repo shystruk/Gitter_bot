@@ -19,7 +19,7 @@ module.exports = function (app, passport) {
         })
     );
 
-    app.get('/logout', function(req,res) {
+    app.get('/logout', function(req, res) {
         req.session.destroy();
         res.redirect('/');
     });
@@ -34,7 +34,13 @@ module.exports = function (app, passport) {
 
     app.get('/home', function(req, res) {
         var token = req.session.token,
-            user = req.user;
+            user = req.user,
+            gitter = new Gitter(token),
+            messageCurrent,
+            events,
+            posCalc,
+            calcData,
+            result;
 
         if (!user) return res.redirect('/');
 
@@ -46,41 +52,36 @@ module.exports = function (app, passport) {
                 user: user,
                 token: token,
                 clientId: server.clientId,
-                rooms: rooms,
-                room: server.room
+                room: server.room,
+                rooms: rooms
             });
         });
 
-        //scanning room
-        var gitter = new Gitter(token),
-            messageCurrent,
-            events,
-            posCalc,
-            calcData,
-            result;
+        if (req.cookies.BotRoom !== server.room) {
 
-        gitter.currentUser().then(function(user) {
-            console.log('You are logged in as:', user.username);
-        });
+            res.clearCookie('BotRoom');
+            res.cookie('BotRoom', server.room);
 
-        gitter.rooms.join(server.room).then(function(room) {
-            events = room.listen();
+            //scanning room
+            gitter.rooms.join(server.room).then(function(room) {
+                events = room.listen();
 
-            console.log('BOT is scanning the room: ' + room.name);
+                console.log('BOT is scanning the room: ' + room.name);
 
-            events.on('message', function(message) {
-                messageCurrent = message.text;
-                if (messageCurrent.indexOf('calc ') > -1) {
-                    posCalc = messageCurrent.indexOf('calc ');
-                    calcData = messageCurrent.slice(posCalc + 4, messageCurrent.length);
-                    try {
-                        result = eval(calcData);
-                        room.send(calcData + ' = ' + result);
-                    } catch(err) {
-                        room.send(calcData + ' = ' + 'Sorry, BOT can\'t count your expression! Incorrect characters. Try again! ;)');
+                events.on('message', function(message) {
+                    messageCurrent = message.text;
+                    if (messageCurrent.indexOf('calc ') > -1) {
+                        posCalc = messageCurrent.indexOf('calc ');
+                        calcData = messageCurrent.slice(posCalc + 4, messageCurrent.length);
+                        try {
+                            result = eval(calcData);
+                            room.send(calcData + ' = ' + result);
+                        } catch(err) {
+                            room.send(calcData + ' = ' + 'Sorry, BOT can\'t count your expression! Incorrect characters. Try again! ;)');
+                        }
                     }
-                }
+                });
             });
-        });
+        }
     });
 };
