@@ -70,14 +70,16 @@ module.exports = function (app, passport) {
 
                 events.on('message', function(message) {
                     messageCurrent = message.text;
-                    if (messageCurrent.indexOf('calc ') > -1) {
-                        posCalc = messageCurrent.indexOf('calc ');
+                    posCalc = messageCurrent.indexOf('calc ');
+
+                    if (posCalc > -1) {
                         calcData = messageCurrent.slice(posCalc + 4, messageCurrent.length);
                         try {
                             result = eval(calcData);
                             room.send(calcData + ' = ' + result);
                         } catch(err) {
-                            room.send(calcData + ' = ' + 'Sorry, BOT can\'t count your expression! Incorrect characters. Try again! ;)');
+                            room.send(calcData + ' = ' +
+                                'Sorry, BOT can\'t count your expression! Incorrect characters. Try again! ;)');
                         }
                     }
                 });
